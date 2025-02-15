@@ -5,7 +5,7 @@
 """
 
 
-from web3 import Web3
+from web3 import Web3, AsyncWeb3
 import yaml
 import logging
 import os
@@ -53,6 +53,7 @@ class ConfigManager:
 
         self.chain = chain
         self.rpc = None
+        self.ws_rpc = None
         self.chain_id = None
 
     def set_config(self, filepath: str = os.path.join(base_dir, "config.yaml")):
@@ -61,18 +62,32 @@ class ConfigManager:
             config_file = yaml.safe_load(file)
 
         self.set_rpc(config_file['rpcs'][self.chain])
+        self.set_ws_rpc(config_file['ws_rpcs'][self.chain])
         self.set_chain_id(config_file['chain_ids'][self.chain])
 
     def set_rpc(self, value):
         self.rpc = value
 
+    def set_ws_rpc(self, value):
+        self.ws_rpc = value
+
     def set_chain_id(self, value):
         self.chain_id = value
 
 
-def create_connection(config):
+async def create_connection(config):
     """
-    Create a connection to the blockchain
+    Create a websocket connection to the blockchain
+    """
+
+    web3_obj = await AsyncWeb3(AsyncWeb3.WebSocketProvider(config.ws_rpc))
+
+    return web3_obj
+
+
+def create_https_connection(config):
+    """
+    Create a https connection to the blockchain
     """
 
     web3_obj = Web3(Web3.HTTPProvider(config.rpc))
@@ -168,7 +183,7 @@ def get_reader_contract(config):
 
     """
 
-    web3_obj = create_connection(config)
+    web3_obj = create_https_connection(config)
     return get_contract_object(
         web3_obj,
         'syntheticsreader',
@@ -176,7 +191,7 @@ def get_reader_contract(config):
     )
 
 
-def get_event_emitter_contract(config):
+async def get_event_emitter_contract(config):
     """
     Get a event emitter contract web3_obj for a given chain
 
@@ -187,7 +202,7 @@ def get_event_emitter_contract(config):
 
     """
 
-    web3_obj = create_connection(config)
+    web3_obj = await create_connection(config)
     return get_contract_object(
         web3_obj,
         'eventemitter',
