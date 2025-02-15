@@ -25,7 +25,7 @@ chain_ids:
 To run, run the py script [monitor_positions_by_websocket.py](https://github.com/snipermonke01/gmx_positions_monitor/blob/main/monitor_positions_by_websocket.py):
 
 ```python
-main(chain="arbitrum")
+asyncio.run(main())
 ```
 
 Notes:
