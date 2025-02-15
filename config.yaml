@@ -1,0 +1,6 @@
+rpcs:
+  arbitrum: arbitrum_rpc
+  avalanche: avax_rpc
+chain_ids:
+  arbitrum: 42161
+  avalanche: 43114
